@@ -674,7 +674,7 @@ private:
   double l1Pt_1, l1Eta_1, l1Phi_1;
   double  jetClusterPt, jetClusterEta, jetClusterPhi ;
   double seedPt_1, seedEta_1, seedPhi_1;
-  std::vector<double> clusterCord; 
+ 
   
   int l1NthJet_1;
   int recoNthJet_1;
@@ -690,10 +690,12 @@ private:
   std::vector<double>dgt_phi;
 
   //clustered jets vector
-  std::vector<jetInfo> all_mjets;
+  std::vector<TLorentzVector> all_mjets;
   std::vector<jetInfo> reco_matched_mjets; 
     
   double recoPt_;
+  double caloScaleFactor;
+  double boostedJetPtFactor; 
   std::vector<int> nSubJets, nBHadrons, HFlav;
   std::vector<std::vector<int>> subJetHFlav;
   std::vector<float> tau1, tau2, tau3;
@@ -737,6 +739,10 @@ BoostedJetStudies::BoostedJetStudies(const edm::ParameterSet& iConfig) :
   // Initialize the Tree
 
   recoPt_      = iConfig.getParameter<double>("recoPtCut");
+  //caloScaleFactor = iConfig.getParameter<double>("caloScaleFactor");
+  //boostedJetPtFactor = iConfig.getParameter<double>("boostedJetPtFactor");
+  
+   
   nEvents      = tfs_->make<TH1F>( "nEvents"  , "nEvents", 2,  0., 1. );
   efficiencyTree = tfs_->make<TTree>("efficiencyTree", "Gen Matched Jet Tree ");
   createBranches(efficiencyTree);
@@ -774,6 +780,10 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
   std::vector<pat::Jet> goodJetsAK8;
   std::vector<l1t::Jet> seeds;
 
+  // from the values give in the L1TCaloLayer1/python/simCaloStage2Layer1Summary_cfi.py file   
+  // hardcoded them to save time 
+  caloScaleFactor = 0.5; 
+  boostedJetPtFactor = 1.5;
   
   uint16_t regionColl[252];
   uint16_t regionColl_input[14][18];
@@ -796,7 +806,6 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
   dgt_eta.clear();
   dgt_phi.clear();
   dgt_et.clear();
-  clusterCord.clear();
   all_mjets.clear();
 
 
@@ -1096,7 +1105,7 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
   
   
       // number of iterations for the clustering algorithm 
-      int iter = 2;
+      int iter = 1;
       numIterations = iter; 
       jetInfo mjets;
       
@@ -1105,16 +1114,19 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
 	
       gctobj::towerMax maxTower  = gctobj::getJetPosition(temp);
       jetInfo tmp_jet;
-      clusterCord.insert(clusterCord.end(), {maxTower.eta ,maxTower.phi});
       
       mjets.seedEnergy = maxTower.energy;
       mjets.etaMax = maxTower.eta;
       mjets.phiMax = maxTower.phi;
 
       
-      tmp_jet = getJetValues(temp,maxTower.ieta, maxTower.iphi);                                                                                                                                              
+      tmp_jet = getJetValues(temp,maxTower.ieta, maxTower.iphi);
+
+      TLorentzVector tmp_Lorentz;
       mjets.energy = tmp_jet.energy;
-      all_mjets.push_back(mjets); 
+
+      tmp_Lorentz.SetPtEtaPhiE (mjets.energy , mjets.etaMax , mjets.phiMax, mjets.energy); // temp.SetPtEtaPhiE(obj.pt(), obj.eta(), obj.phi(), obj.pt())
+      all_mjets.push_back(tmp_Lorentz); 
 
 	
       //match the l1 jet to the reco level jet. 
@@ -1124,13 +1136,15 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
 	
 	
 	jetClusterEta = mjets.etaMax ;
-	jetClusterPhi = mjets.phiMax; 
-	jetClusterPt= mjets.energy;
+	jetClusterPhi = mjets.phiMax;
+	std::cout << "boostedJetPtFactor : " << boostedJetPtFactor <<std::endl;
+	std::cout << "caloScaleFactor " << caloScaleFactor << std::endl;
+	jetClusterPt= mjets.energy * boostedJetPtFactor* caloScaleFactor ;
 	
 	
-	mjetcluster_pt -> Fill(mjets.energy);
-	mjetcluster_phi->Fill(mjets.phiMax);
-	mjetcluster_eta->Fill(mjets.etaMax );
+	mjetcluster_pt -> Fill(jetClusterPt);
+	mjetcluster_phi->Fill(jetClusterPhi);
+	mjetcluster_eta->Fill(jetClusterEta);
 	//std::cout << " mjet.energy : " <<  mjets.energy << std::endl;
 	//std::cout << " mjet.etaMax : " <<  mjets.etaMax << std::endl;
 	//std::cout << " mjet.phiMax : " <<  mjets.phiMax << std::endl;
@@ -1141,9 +1155,9 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
 
       
       
-      if (abs(genEta_1) < 2.5) {
-	efficiencyTree->Fill();
-      }
+      //      if (abs(genEta_1) < 2.5) {
+	//	efficiencyTree->Fill();
+      //      }
 
   //  efficiencyTree->Fill();
   //  cout<< "check5"  << std::endl;
@@ -1199,13 +1213,12 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
     tree->Branch("tauseed", "vector<TLorentzVector>", &tauseed, 32000, 0);
     tree->Branch("ak8Jets", "vector<TLorentzVector>", &ak8Jets, 32000, 0);
     tree->Branch("subJets", "vector<TLorentzVector>", &subJets, 32000, 0);
+    tree->Branch("all_mjets", "vector<TLorentzVector>", &all_mjets, 32000, 0);
     tree->Branch("cregions",     &cregions);
     tree->Branch("dgt_id",     &dgt_id);
     tree->Branch("dgt_et" , &dgt_et);
     tree->Branch("dgt_eta" , &dgt_eta);
     tree->Branch("dgt_phi" , &dgt_phi);
-    tree->Branch("clusterCord" , &clusterCord);
-    
   }
 
 
