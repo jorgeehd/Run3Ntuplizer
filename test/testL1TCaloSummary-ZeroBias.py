@@ -40,10 +40,11 @@ process.load("L1Trigger.Run3Ntuplizer.l1BoostedJetStudies_cfi")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5))
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-                                'root://cms-xrd-global.cern.ch://store/data/Run2024F/ZeroBias/MINIAOD/PromptReco-v1/000/381/948/00000/6ac0a4d2-06ad-4779-b58f-11b2111823f5.root'
-                            ),
+                                'root://cms-xrd-global.cern.ch//store/data/Run2024F/ZeroBias/MINIAOD/PromptReco-v1/000/381/946/00000/a921de39-dd46-4c41-a1cc-0888f18a3541.root'
+                               ),
                             secondaryFileNames = cms.untracked.vstring(
-                                'root://cms-xrd-global.cern.ch://store/data/Run2024F/ZeroBias/RAW/v1/000/381/948/00000/4de62dd9-54bf-487e-af50-f0d8bced2624.root'
+                                'root://cms-xrd-global.cern.ch//store/data/Run2024F/ZeroBias/RAW/v1/000/381/946/00000/5891f9b8-bee6-4bbf-b874-08c8ddb4f7a0.root'
+  
                             )
 )
 
