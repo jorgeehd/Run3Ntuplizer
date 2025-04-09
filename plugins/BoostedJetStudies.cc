@@ -1130,17 +1130,15 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
 
 	
       //match the l1 jet to the reco level jet. 
-      if (reco::deltaR(mjets.etaMax , mjets.phiMax , recoEta_1, recoPhi_1) < 0.4) {   
+      //if (reco::deltaR(mjets.etaMax , mjets.phiMax , recoEta_1, recoPhi_1) < 0.4) {   
 	//an optional condition if you want to match reco jets to generated MC jets. 
 	///	if(genDR < 0.8) { 
 	
 	
 	jetClusterEta = mjets.etaMax ;
 	jetClusterPhi = mjets.phiMax;
-	std::cout << "boostedJetPtFactor : " << boostedJetPtFactor <<std::endl;
-	std::cout << "caloScaleFactor " << caloScaleFactor << std::endl;
 	jetClusterPt= mjets.energy * boostedJetPtFactor* caloScaleFactor ;
-	
+	//	std::cout << " jetClusterPt : " <<  jetClusterPt  << std::endl;
 	
 	mjetcluster_pt -> Fill(jetClusterPt);
 	mjetcluster_phi->Fill(jetClusterPhi);
@@ -1150,14 +1148,14 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
 	//std::cout << " mjet.phiMax : " <<  mjets.phiMax << std::endl;
 	
 	//        }  genDR end of parenthesis 
-      }// reco matching end of parenthesis 
+        //     }// reco matching end of parenthesis  (take out if running rate plots) 
       }//end of mjet clustering iteration
 
-      
-      
-      //      if (abs(genEta_1) < 2.5) {
-	//	efficiencyTree->Fill();
-      //      }
+      //      std::cout << "abs(genEta_1) : " << abs(genEta_1)  << std::endl; 
+        if (abs(genEta_1) < 2.5) {
+	  //	  std::cout << "check" << std::endl; 
+      	efficiencyTree->Fill();
+           }
 
   //  efficiencyTree->Fill();
   //  cout<< "check5"  << std::endl;
