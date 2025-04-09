@@ -59,7 +59,7 @@ void controlplot::Loop(const char* recoeta, const char* l1pt)
    double l1ptcut;
    sstrm2 >> l1ptcut;
 
-   double SF = 1.0; // naive scale factor
+   double SF = 0.75; // naive scale factor
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
 	Long64_t ientry = LoadTree(jentry);
 	if (ientry < 0) break;
@@ -69,12 +69,12 @@ void controlplot::Loop(const char* recoeta, const char* l1pt)
 	//efficiencies
 
 
-	jetClusterPt = SF*  jetClusterPt; 
+	jetClusterPt = SF*  jetClusterPt;
 	recoetacut = false;
 	if(recoetarange == "barrel") recoetacut = (abs(recoEta_1) <= 1.474);
 	if(recoetarange == "endcap") recoetacut = (abs(recoEta_1) > 1.474 && abs(recoEta_1) <= 3);
 	if(recoetarange == "all") recoetacut = true;
-        if(recoPt_1 >= 200. && genId == 25 && genDR < 0.8) {
+        if(recoPt_1 >= 100. && genId == 25 && genDR <0.4  ) {
 		recojetpt_eff_den1->Fill(recoPt_1); 
 		recojeteta_eff_den1->Fill(recoEta_1); 
 		recojetphi_eff_den1->Fill(recoPhi_1); 
@@ -82,6 +82,13 @@ void controlplot::Loop(const char* recoeta, const char* l1pt)
 			recojetpt_eff_num1->Fill(recoPt_1);  
 			recojeteta_eff_num1->Fill(recoEta_1); 
 			recojetphi_eff_num1->Fill(recoPhi_1); 
+		}
+		if (seedPt_1 * SF >= l1ptcut) {
+		  seed180_eff_num -> Fill(recoPt_1);
+		}
+
+		if (l1Pt_1 * SF >= l1ptcut) {
+		  l1pt_eff_num -> Fill(recoPt_1); 
 		}
 	}
 	}
@@ -111,12 +118,20 @@ void controlplot::BookHistos(const char* file2){
         l1jetpt_rate1->GetXaxis()->SetTitle("p_{T} [GeV]");
 
         sprintf(name, "recojetpt_eff_den1");
-        recojetpt_eff_den1 = new TH1F (name,"recojetpt_eff_den1", 40, 200, 500);
+	recojetpt_eff_den1 = new TH1F (name,"recojetpt_eff_den1", 40, 100, 500);
         recojetpt_eff_den1->GetXaxis()->SetTitle("p_{T} [GeV]");
 
         sprintf(name, "recojetpt_eff_num1");
-        recojetpt_eff_num1 = new TH1F (name,"recojetpt_eff_num1", 40, 200, 500);
+        recojetpt_eff_num1 = new TH1F (name,"recojetpt_eff_num1", 40, 100, 500);
         recojetpt_eff_num1->GetXaxis()->SetTitle("p_{T} [GeV]");
+
+	sprintf(name, "seed180_eff_num");
+        seed180_eff_num = new TH1F (name,"seed180_eff_num", 40, 100, 500);
+        seed180_eff_num->GetXaxis()->SetTitle("p_{T} [GeV]");
+
+        sprintf(name, "l1pt_eff_num");
+        l1pt_eff_num = new TH1F (name,"l1pt_eff_num", 40, 100 , 500);
+        l1pt_eff_num->GetXaxis()->SetTitle("p_{T} [GeV]");
 
         sprintf(name, "recojeteta_eff_den1");
         recojeteta_eff_den1 = new TH1F (name,"recojeteta_eff_den1", 40, -5, 5);

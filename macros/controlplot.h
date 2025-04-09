@@ -37,7 +37,7 @@ public :
    Int_t           fCurrent; //!current Tree number in a TChain
  
    TFile *fileName;
-   TH1F *recojetpt_eff_den1, *recojetpt_eff_num1, *recojeteta_eff_den1, *recojeteta_eff_num1, *recojetphi_eff_den1, *recojetphi_eff_num1, *l1jetpt, *l1jetpt_rate1;
+  TH1F *recojetpt_eff_den1, *recojetpt_eff_num1, *recojeteta_eff_den1, *recojeteta_eff_num1, *recojetphi_eff_den1, *recojetphi_eff_num1, *l1jetpt, *l1jetpt_rate1 , *seed180_eff_num , *l1pt_eff_num; 
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -59,6 +59,7 @@ public :
    Double_t        recoDeltaPhi;
    Double_t        recoDeltaR;
    Double_t        recoMass;
+   Double_t        seedPt_1;
    Double_t        l1Pt_1;
    Double_t        l1Eta_1;
    Double_t        l1Phi_1;
@@ -114,6 +115,7 @@ public :
   TBranch        *b_recoDeltaPhi;   //!
   TBranch        *b_recoDeltaR;   //!
   TBranch        *b_recoMass;   //!
+  TBranch        *b_seedPt_1; 
   TBranch        *b_l1Pt_1;   //!
   TBranch        *b_l1Eta_1;   //!
   TBranch        *b_l1Phi_1;
@@ -267,6 +269,7 @@ void controlplot::Init(TTree *tree)
    fChain->SetBranchAddress("l1Pt_1", &l1Pt_1, &b_l1Pt_1);
    fChain->SetBranchAddress("l1Eta_1", &l1Eta_1, &b_l1Eta_1);
    fChain->SetBranchAddress("l1Phi_1", &l1Phi_1, &b_l1Phi_1);
+   fChain->SetBranchAddress("seedPt_1", &seedPt_1 , &b_seedPt_1); 
    fChain->SetBranchAddress("jetClusterPt", &jetClusterPt, &b_jetClusterPt);
    fChain->SetBranchAddress("jetClusterPhi", &jetClusterPhi, &b_jetClusterPhi);
    fChain->SetBranchAddress("jetClusterEta", &jetClusterEta, &b_jetClusterEta);
