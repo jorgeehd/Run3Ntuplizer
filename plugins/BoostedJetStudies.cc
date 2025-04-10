@@ -1105,7 +1105,7 @@ void BoostedJetStudies::analyze( const edm::Event& evt, const edm::EventSetup& e
   
   
       // number of iterations for the clustering algorithm 
-      int iter = 1;
+      int iter = 3;
       numIterations = iter; 
       jetInfo mjets;
       
